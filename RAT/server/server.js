@@ -6,9 +6,11 @@ const color = require("./colors")
 let clients = []
 console.log(`
    ${color.FgYellow}
-    Menu:${color.FgMagenta}
-    * exec ${color.FgGreen} --> ${color.Bright} To execute the code in terminal console.log ${color.BgBlack}
-
+    Menu :::\n${color.FgMagenta}
+    [##] exec ${color.FgGreen} --> ${color.Bright} To execute the code in terminal console.log 
+    ${color.FgMagenta}
+    [##] client list${color.FgGreen} --> ${color.Bright} Shows the number of Clients.
+    ${color.BgBlack}
 `)
 const rl = readline.createInterface({
     input: process.stdin,
@@ -24,7 +26,7 @@ rl.on("line", msg => {
             }
         }
     }
-    if(msg === "list client")
+    if(msg === "client list")
     {
         console.log(`Total Clients: ${clients.length}`)
     }
@@ -43,6 +45,7 @@ wss.on("connection", (ws, req) => {
     })
     ws.on("close", () => {
         clients.splice(clients.indexOf(ws), 1)
+        console.log(`${color.BgBlack}${color.FgRed}Client ${req.socket.remoteAddress} Disconnected.\nNumber Of Clients:${clients.length}${color.FgRed}`)
         ws.close()
     })
 })
