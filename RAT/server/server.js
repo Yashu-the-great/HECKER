@@ -1,5 +1,5 @@
 const WS = require('ws')
-const port = 6969
+const port = 8080
 const wss = new WS.Server({ port })
 const readline = require('readline')
 const color = require("./colors")
@@ -20,7 +20,7 @@ rl.on("line", msg => {
     if (clients.length > 0) {
         if (isNaN(msg.split(" ")[0]) != true) {
             try {
-                clients[Number(msg.split(" ")[0])]?.send(msg)
+                clients[Number(msg.split(" ")[0])].send(msg)
             } catch (err) {
                 console.log(`No client on ${Number(msg.split(" ")[0])}`)
             }
@@ -36,7 +36,12 @@ rl.on("line", msg => {
 })
 wss.on("connection", (ws, req) => {
     console.log(`connected to ${req.socket.remoteAddress}`)
+    if(clients.includes(ws))
+    {
+        
+    } else {
     clients.push(ws)
+    }
     ws.on("message", (message) => {
         console.log(`${color.FgCyan}`)
         console.log(message.toString())
@@ -48,5 +53,6 @@ wss.on("connection", (ws, req) => {
         console.log(`${color.BgBlack}${color.FgRed}Client ${req.socket.remoteAddress} Disconnected.\nNumber Of Clients:${clients.length}${color.FgRed}`)
         ws.close()
     })
+
 })
 
