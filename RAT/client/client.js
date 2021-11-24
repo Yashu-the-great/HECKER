@@ -80,4 +80,9 @@ function reconnect() {
     }
 }
 reconnect()
-setInterval(reconnect, reconnect_time)
+try {
+    setInterval(reconnect, reconnect_time)
+} catch(error) {
+    console.log(error)
+    console.log("Something's Wrong with the computer")
+}
