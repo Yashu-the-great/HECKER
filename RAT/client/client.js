@@ -1,6 +1,7 @@
 const WS = require('ws')
 const os = require('os');
 const { exec } = require('child_process')
+
 const { Game } = require('./src/Game')
 const { UserInterface } = require('./src/UserInterface')
 const game = new Game(new UserInterface())
