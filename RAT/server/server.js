@@ -1,5 +1,5 @@
 const WS = require('ws')
-const port = 8080
+const port = 6969
 const wss = new WS.Server({ port })
 const readline = require('readline')
 const color = require("./colors")
@@ -20,6 +20,7 @@ const rl = readline.createInterface({
 
 
 rl.on("line", msg => {
+    msg = msg.toLowerCase()
     if (clients.length > 0) {
         if (isNaN(msg.split(" ")[0]) != true) {
             try {
@@ -31,6 +32,9 @@ rl.on("line", msg => {
     }
     if (msg === "client list") {
         console.log(`Total Clients: ${clients.length}`)
+        for (let i = 0; i < clients.length; i++) {
+            console.log(`${i} ::: ${clients[i].url}`)
+        }
     }
     if (msg === "location list") {
         console.log(`Total Locations: ${client_locations.length}`)
@@ -76,11 +80,11 @@ wss.on("connection", (ws, req) => {
 function getLocationFromIp(ip) {
     // console.log(`${color.FgWhite}`)
     try {
+        
         ip = ip.replace("::ffff:", "")
+        console.log(`IP ::: ${ip}`)
         let geo = geoip.lookup(ip)
-        // console.log(ip)
-        // console.log(geo)
-        // console.log(`${color.FgRed}`)
+
         return geo
     }
     catch (error) {
@@ -129,3 +133,7 @@ function showMenu() {
     ${color.BgBlack}
 `)
 }
+
+/*
+
+*/
